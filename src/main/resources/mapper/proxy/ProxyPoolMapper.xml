@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.anotherme17.spiderproxy.dao.proxy.ProxyPoolDao">
+    <resultMap id="ipProxyResult" type="IpProxyPo">
+        <id property="id" column="id"/>
+        <result property="ip" column="ip"/>
+        <result property="port" column="port"/>
+        <result property="location" column="location"/>
+        <result property="speed" column="speed"/>
+        <result property="gmtCreate" column="gmtCreate"/>
+        <result property="gmtModify" column="gmtModify"/>
+    </resultMap>
+
+    <insert id="insertIpProxy" parameterType="IpProxyPo">
+        INSERT INTO ip_proxy (id,ip,port,location,speed,gmtCreate,gmtModify)
+        VALUES (#{id},#{ip},#{port},#{location},#{speed},#{gmtCreate},#{gmtModify})
+    </insert>
+
+    <select id="getById" parameterType="java.lang.String" resultMap="ipProxyResult">
+        SELECT * FROM ip_proxy WHERE id = #{id}
+    </select>
+
+    <update id="update" parameterType="IpProxyPo">
+        UPDATE ip_proxy
+        <if test="gmtModify != null">
+            gmtModify = #{gmtModify,jdbcType=TIMESTAMP}
+        </if>
+        <if test="speed != null">
+            speed = #{speed}
+        </if>
+
+        WHERE id = #{id}
+
+    </update>
+</mapper>
