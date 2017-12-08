@@ -1,10 +1,13 @@
 package io.github.anotherme17.spiderproxy;
 
+import io.github.anotherme17.base.utils.MD5Util;
 import io.github.anotherme17.spiderproxy.po.proxy.IpProxyPo;
 import io.github.anotherme17.spiderproxy.service.wash.CnProxyWashService;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author lirenhao
@@ -16,9 +19,25 @@ public class MyTest {
 
     @Test
     public void test() {
-        CnProxyWashService washService=new CnProxyWashService();
-        List<IpProxyPo> list=washService.wash(html);
-        System.out.println(list);
+//        CnProxyWashService washService=new CnProxyWashService();
+//        List<IpProxyPo> list=washService.wash(html);
+//        System.out.println(list);
+        System.out.println(MD5Util.getEncode("another"));
+    }
+
+    @Test
+    public void test2(){
+        Set<IpProxyPo> set=new HashSet<>();
+        IpProxyPo p1=new IpProxyPo();
+        p1.setId("1");
+        p1.setSpeed(100L);
+        IpProxyPo p2=new IpProxyPo();
+        p2.setId("1");
+        p2.setSpeed(200L);
+        System.out.println(p1.equals(p2));
+        set.add(p1);
+        set.add(p2);
+        System.out.println(set);
     }
 
     String html="<!DOCTYPE html>\n" +

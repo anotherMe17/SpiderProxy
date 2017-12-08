@@ -1,6 +1,7 @@
 package io.github.anotherme17.spiderproxy.service.wash;
 
 import io.github.anotherme17.spiderproxy.po.proxy.IpProxyPo;
+import io.github.anotherme17.spiderproxy.service.wash.base.BaseWash;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

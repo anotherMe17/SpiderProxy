@@ -18,4 +18,18 @@ public class IpProxyPo {
     private Long speed;
     private Date gmtCreate;
     private Date gmtModify;
+
+    @Override
+    public int hashCode() {
+        return getId() == null ? 1 : getId().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof IpProxyPo) {
+            if (getId() != null && getId().equals(((IpProxyPo) obj).getId()))
+                return true;
+        }
+        return false;
+    }
 }

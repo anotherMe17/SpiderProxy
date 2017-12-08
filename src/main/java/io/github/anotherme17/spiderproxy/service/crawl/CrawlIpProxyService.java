@@ -8,15 +8,13 @@ import io.github.anotherme17.spiderproxy.common.CrawlConstants;
 import io.github.anotherme17.spiderproxy.po.proxy.IpProxyPo;
 import io.github.anotherme17.spiderproxy.service.SpringBeanService;
 import io.github.anotherme17.spiderproxy.service.proxy.ProxyService;
-import io.github.anotherme17.spiderproxy.service.wash.BaseWash;
+import io.github.anotherme17.spiderproxy.service.wash.base.BaseWash;
 import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -27,58 +25,85 @@ import java.util.stream.Collectors;
 @Service
 public class CrawlIpProxyService {
 
+    public static final int PROXY_MAX_SIZE = 1000;
+
+    private boolean crawling = false;
+
     @Autowired
     private ProxyService proxyService;
 
     public void updateIpProxyPool() {
+        try {
+            if (crawling)
+                return;
 
-        OkClient client = new OkClient(HttpLoggingInterceptor.Level.BODY, null, DeviceInfoUtil.randomUserAgent());
+            crawling = true;
 
-        Flowable.fromIterable(CrawlConstants.CRAWL_MAP.entrySet())
-                .parallel()
-                .map(entry -> {
-                    BaseWash wash = SpringBeanService.getBean(entry.getValue(), BaseWash.class);
-                    if (wash == null)
-                        return null;
+            List<IpProxyPo> oldProxys = proxyService.getAll();
+            oldProxys = oldProxys
+                    .stream()
+                    .filter(proxy -> {
+                        long speed = ProxyUtil.checkProxy(proxy.getIp(), proxy.getPort());
+                        if (speed < 0) {
+                            proxyService.deleteById(proxy.getId());
+                            return false;
+                        } else {
+                            proxy.setSpeed(speed);
+                            proxyService.update(proxy);
+                            return true;
+                        }
+                    })
+                    .sequential()
+                    .collect(Collectors.toList());
 
-                    String content = client.builder()
-                            .url(entry.getKey())
-                            .headers(getHeads())
-                            .get()
-                            .readString();
+            if (oldProxys.size() >= PROXY_MAX_SIZE)
+                return;
 
-                    return wash.wash(content);
-                })
-                .doOnError(throwable -> log.error(throwable.getMessage(),throwable))
-                .flatMap(ipProxyPos -> {
-                    if (ipProxyPos == null)
-                        return null;
 
-                    List<IpProxyPo> result = ipProxyPos
-                            .stream()
-                            .parallel()
-                            .filter(proxy -> {
-                                long speed = ProxyUtil.checkProxy(proxy.getIp(), proxy.getPort());
-                                if (speed < 0)
-                                    return false;
-                                proxy.setSpeed(speed);
-                                return true;
-                            })
-                            .collect(Collectors.toList());
-                    return Flowable.fromIterable(result);
-                })
-                .sequential()
-                .subscribe(ipProxyPo -> proxyService.saveOrUpdate(ipProxyPo));
-    }
+            OkClient client = new OkClient(HttpLoggingInterceptor.Level.BODY, null, DeviceInfoUtil.randomUserAgent());
 
-    private Map<String,String> getHeads(){
-        return new HashMap<String,String>(){
-            {
-                put("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-                put("Accept-Encoding","gzip, deflate");
-                put("Accept-Language","zh-CN,zh;q=0.9,en;q=0.8");
-                put("Connection","keep-alive");
-            }
-        };
+            Flowable.fromIterable(CrawlConstants.CRAWL_MAP.entrySet())
+                    .parallel()
+                    .map(entry -> {
+                        BaseWash wash = SpringBeanService.getBean(entry.getValue(), BaseWash.class);
+                        if (wash == null)
+                            return null;
+
+                        try {
+                            String content = client.builder()
+                                    .url(entry.getKey())
+                                    .get()
+                                    .readString();
+
+                            return wash.wash(content);
+                        } catch (Exception e) {
+                            log.error("爬取:{}, 失败", entry.getKey(), e);
+                            return null;
+                        }
+                    })
+                    .doOnError(throwable -> log.error(throwable.getMessage(), throwable))
+                    .flatMap(ipProxyPos -> {
+                        if (ipProxyPos == null)
+                            return null;
+
+                        List<IpProxyPo> result = ipProxyPos
+                                .stream()
+                                .parallel()
+                                .filter(proxy -> {
+                                    long speed = ProxyUtil.checkProxy(proxy.getIp(), proxy.getPort());
+                                    if (speed < 0)
+                                        return false;
+                                    proxy.setSpeed(speed);
+                                    return true;
+                                })
+                                .collect(Collectors.toList());
+                        return Flowable.fromIterable(result);
+                    })
+                    .sequential()
+                    .subscribe(ipProxyPo -> proxyService.saveOrUpdate(ipProxyPo));
+        } catch (Exception e) {
+            log.error("crawl error", e);
+            crawling = false;
+        }
     }
 }

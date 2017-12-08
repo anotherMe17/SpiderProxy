@@ -11,7 +11,8 @@ public class CrawlConstants {
 
     public static final Map<String, String> CRAWL_MAP = new HashMap<String, String>() {
         {
-            put("http://cn-proxy.com/", "cnProxyWashService");
+//            put("http://cn-proxy.com/china.ico", "cnProxyWashService");
+            put("http://www.xicidaili.com/", "xiciProxyWashService");
         }
     };
 }
