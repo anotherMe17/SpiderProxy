@@ -15,6 +15,10 @@ public class IpProxyPo {
     private String ip;
     private String port;
     private String location;
+
+    private String anonymity;
+    private String proxyType;
+
     private Long speed;
     private Date gmtCreate;
     private Date gmtModify;

@@ -44,6 +44,8 @@ public class XiCiProxyWashService extends BaseWash {
             po.setIp(td.get(1).text());
             po.setPort(td.get(2).text());
             po.setLocation(td.get(3).text());
+            po.setAnonymity(td.get(4).text());
+            po.setProxyType(td.get(5).text() == null ? null : td.get(5).text().trim());
 
             po.setGmtCreate(nowDate);
             po.setGmtModify(nowDate);
