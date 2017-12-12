@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 public class CrawlIpProxyService {
 
-    public static final int PROXY_MAX_SIZE = 1000;
+    public static final int PROXY_MAX_SIZE = 100;
 
     private boolean crawling = false;
 
@@ -37,6 +37,8 @@ public class CrawlIpProxyService {
             if (crawling)
                 return;
 
+            log.info("开始更新代理池");
+            // TODO: 2017/12/11 优化
             crawling = true;
 
             List<IpProxyPo> oldProxys = proxyService.getAll();
@@ -60,7 +62,7 @@ public class CrawlIpProxyService {
                 return;
 
 
-            OkClient client = new OkClient(HttpLoggingInterceptor.Level.BODY, null, DeviceInfoUtil.randomUserAgent());
+            OkClient client = new OkClient(HttpLoggingInterceptor.Level.NONE, null, DeviceInfoUtil.randomUserAgent());
 
             Flowable.fromIterable(CrawlConstants.CRAWL_MAP.entrySet())
                     .parallel()
@@ -102,8 +104,10 @@ public class CrawlIpProxyService {
                     .sequential()
                     .subscribe(ipProxyPo -> proxyService.saveOrUpdate(ipProxyPo));
         } catch (Exception e) {
-            log.error("crawl error", e);
+            log.error("代理池更新失败", e);
             crawling = false;
         }
+
+        log.info("代理池更新成功");
     }
 }

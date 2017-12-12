@@ -1,20 +1,16 @@
 package io.github.anotherme17.spiderproxy.controller;
 
-import io.github.anotherme17.base.utils.MD5Util;
-import io.github.anotherme17.spiderproxy.po.proxy.IpProxyPo;
-import io.github.anotherme17.spiderproxy.service.crawl.CrawlIpProxyService;
+import io.github.anotherme17.spiderproxy.dto.HttpResult;
+import io.github.anotherme17.spiderproxy.dto.proxy.ProxyOutputDTO;
+import io.github.anotherme17.spiderproxy.exception.ProxyException;
 import io.github.anotherme17.spiderproxy.service.proxy.ProxyService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,28 +23,16 @@ import java.util.List;
 public class ProxyController {
 
     @Autowired
-    private CrawlIpProxyService crawlIpProxyService;
-
-    @Autowired
     private ProxyService proxyService;
 
-    @RequestMapping(value = "/getAll", method = RequestMethod.GET)
-    public List<IpProxyPo> getAllProxy(HttpServletRequest request, HttpServletResponse rsp) {
-        String token = request.getHeader("Crawl-Token");
-        if (StringUtils.isEmpty(token) || !MD5Util.getEncode("another").equals(token))
-            return new ArrayList<>();
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public HttpResult<List<ProxyOutputDTO>> getProxy(
+            @RequestParam(value = "proxyType",required = false) String proxyType,
+            @RequestParam(value = "anonymity",required = false) String anonymity,
+            @RequestParam(value = "offset",required = false) Integer offset) throws ProxyException {
 
-        return proxyService.getAll();
-    }
-
-    @RequestMapping(value = "/update", method = RequestMethod.GET)
-    public String updateProxy(HttpServletRequest request, HttpServletResponse rsp) {
-        String token = request.getHeader("Crawl-Token");
-        if (StringUtils.isEmpty(token) || !MD5Util.getEncode("another").equals(token))
-            return "token error";
-
-        crawlIpProxyService.updateIpProxyPool();
-
-        return "ok";
+        return HttpResult.<List<ProxyOutputDTO>>of()
+                .setCode(0).setMsg("ok")
+                .setDate(proxyService.getByOffset(proxyType, anonymity, offset));
     }
 }

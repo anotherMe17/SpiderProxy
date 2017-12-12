@@ -43,4 +43,14 @@
     <delete id="deleteById" parameterType="java.lang.String">
         DELETE FROM ip_proxy WHERE id = #{id}
     </delete>
+
+    <select id="getProxy" resultMap="ipProxyResult">
+        SELECT * FROM ip_proxy
+        <where>
+            <if test="proxyType != null">proxyType = #{proxyType}</if>
+            <if test="anonymity != null">AND anonymity = #{anonymity}</if>
+        </where>
+        ORDER BY speed
+        LIMIT #{offset},10
+    </select>
 </mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.anotherme17.spiderproxy.dao.schedule.ScheduleDao">
+    <resultMap id="scheduleMap" type="io.github.anotherme17.spiderproxy.po.schedule.SchedulePo">
+        <id property="id" column="id"/>
+        <result property="scheduleName" column="scheduleName"/>
+        <result property="cron" column="cron"/>
+        <result property="enable" column="enable"/>
+        <result property="gmtCreate" column="gmtCreate"/>
+        <result property="gmtModify" column="gmtModify"/>
+    </resultMap>
+
+    <insert id="insertSchedule" parameterType="io.github.anotherme17.spiderproxy.po.schedule.SchedulePo">
+        INSERT INTO t_schedule (scheduleName,cron,enable,gmtCreate,gmtModify)
+        VALUES (#{scheduleName},#{cron},#{enable},#{gmtCreate},#{gmtModify})
+    </insert>
+
+    <delete id="deleteSchedule">
+        DELETE FROM t_schedule
+        <where>
+            <if test="id != null">
+                id = #{id}
+            </if>
+            <if test="scheduleName != null">
+                OR scheduleName = #{scheduleName}
+            </if>
+        </where>
+    </delete>
+
+    <update id="updateSchedule" parameterType="io.github.anotherme17.spiderproxy.po.schedule.SchedulePo">
+        UPDATE t_schedule
+        <set>
+            <if test="cron != null">cron = #{cron}</if>
+            <if test="enable != null">enable = #{enable}</if>
+            <if test="gmtModify != null">gmtModify = #{gmtModify}</if>
+        </set>
+        <where>
+            <if test="id != null">
+                id = #{id}
+            </if>
+            <if test="scheduleName != null">
+                OR scheduleName = #{scheduleName}
+            </if>
+        </where>
+    </update>
+
+    <select id="getAllSchedule" resultMap="scheduleMap">
+        SELECT * FROM t_schedule
+    </select>
+
+    <select id="getById" resultMap="scheduleMap">
+        SELECT * FROM t_schedule WHERE id = #{id}
+    </select>
+
+</mapper>

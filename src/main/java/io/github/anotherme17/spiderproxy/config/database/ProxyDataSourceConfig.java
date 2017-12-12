@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -32,9 +33,9 @@ import java.util.Map;
         sqlSessionFactoryRef = "proxySqlSessionFactory")
 public class ProxyDataSourceConfig {
 
-    static final String PACKAGE = "io.github.anotherme17.spiderproxy.dao.proxy";
-    private static final String TYPE_ALIASES_PACKAGE = "io.github.anotherme17.spiderproxy.po.proxy";
-    private static final String MAPPER_LOCATION = "classpath:/mapper/proxy/*.xml";
+    static final String PACKAGE = "io.github.anotherme17.spiderproxy.dao.*";
+    private static final String TYPE_ALIASES_PACKAGE = "io.github.anotherme17.spiderproxy.po.*";
+    private static final String MAPPER_LOCATION = "classpath:/mapper/*/*.xml";
     private static final String CONFIG_LOCATION = "classpath:/mapper/proxy_config.xml";
 
     @Autowired

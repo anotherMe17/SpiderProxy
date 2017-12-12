@@ -1,9 +1,11 @@
 package io.github.anotherme17.spiderproxy;
 
 import io.github.anotherme17.base.utils.MD5Util;
+import io.github.anotherme17.spiderproxy.dto.HttpResult;
 import io.github.anotherme17.spiderproxy.po.proxy.IpProxyPo;
 import io.github.anotherme17.spiderproxy.service.wash.CnProxyWashService;
 import org.junit.Test;
+import org.springframework.beans.BeanUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -19,10 +21,13 @@ public class MyTest {
 
     @Test
     public void test() {
-//        CnProxyWashService washService=new CnProxyWashService();
-//        List<IpProxyPo> list=washService.wash(html);
-//        System.out.println(list);
-        System.out.println(MD5Util.getEncode("another"));
+        HttpResult<String> h1=HttpResult.<String>of().setCode(0).setMsg("000");
+        HttpResult<String> h2=HttpResult.<String>of().setCode(1).setDate("222");
+
+        BeanUtils.copyProperties(h1,h2);
+
+        System.out.println(h1);
+        System.out.println(h2);
     }
 
     @Test

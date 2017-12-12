@@ -9,6 +9,7 @@ import java.util.Map;
  */
 public class CrawlConstants {
 
+    // TODO: 2017/12/11  更多来源网站
     public static final Map<String, String> CRAWL_MAP = new HashMap<String, String>() {
         {
 //            put("http://cn-proxy.com/china.ico", "cnProxyWashService");
